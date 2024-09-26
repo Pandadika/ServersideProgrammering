@@ -6,7 +6,7 @@ using WebApi.Models;
 
 #nullable disable
 
-namespace WebApi.Migrations.User
+namespace WebApi.Migrations
 {
     [DbContext(typeof(UserContext))]
     partial class UserContextModelSnapshot : ModelSnapshot

@@ -9,9 +9,9 @@ using WebApi.Models;
 
 namespace WebApi.Migrations
 {
-    [DbContext(typeof(TodoContext))]
-    [Migration("20240926094518_Update")]
-    partial class Update
+    [DbContext(typeof(UserContext))]
+    [Migration("20240926145542_Init")]
+    partial class Init
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -32,9 +32,39 @@ namespace WebApi.Migrations
                         .IsRequired()
                         .HasColumnType("TEXT");
 
+                    b.Property<string>("UserEmail")
+                        .HasColumnType("TEXT");
+
                     b.HasKey("Id");
 
-                    b.ToTable("TodoItems");
+                    b.HasIndex("UserEmail");
+
+                    b.ToTable("ToDoItem");
+                });
+
+            modelBuilder.Entity("WebApi.Models.User", b =>
+                {
+                    b.Property<string>("Email")
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("CPR")
+                        .HasColumnType("TEXT");
+
+                    b.HasKey("Email");
+
+                    b.ToTable("Users");
+                });
+
+            modelBuilder.Entity("WebApi.Models.ToDoItem", b =>
+                {
+                    b.HasOne("WebApi.Models.User", null)
+                        .WithMany("ToDoItems")
+                        .HasForeignKey("UserEmail");
+                });
+
+            modelBuilder.Entity("WebApi.Models.User", b =>
+                {
+                    b.Navigation("ToDoItems");
                 });
 #pragma warning restore 612, 618
         }

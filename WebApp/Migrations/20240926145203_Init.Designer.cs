@@ -8,11 +8,11 @@ using WebApp.Data;
 
 #nullable disable
 
-namespace WebApp.Migrations.ApplicationDb
+namespace WebApp.Migrations
 {
-  [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20240924071022_initApplication")]
-    partial class initApplication
+    [DbContext(typeof(ApplicationDbContext))]
+    [Migration("20240926145203_Init")]
+    partial class Init
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)

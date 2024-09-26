@@ -2,10 +2,10 @@
 
 #nullable disable
 
-namespace WebApi.Migrations.User
+namespace WebApi.Migrations
 {
     /// <inheritdoc />
-    public partial class UserContextInit : Migration
+    public partial class Init : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
@@ -15,7 +15,7 @@ namespace WebApi.Migrations.User
                 columns: table => new
                 {
                     Email = table.Column<string>(type: "TEXT", nullable: false),
-                    CPR = table.Column<string>(type: "TEXT", nullable: false)
+                    CPR = table.Column<string>(type: "TEXT", nullable: true)
                 },
                 constraints: table =>
                 {
