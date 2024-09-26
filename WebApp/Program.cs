@@ -1,5 +1,4 @@
 using Microsoft.AspNetCore.Components.Authorization;
-using Microsoft.AspNetCore.DataProtection;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using WebApp.Components.Account;
@@ -55,7 +54,14 @@ if (string.IsNullOrEmpty(apiBaseAddress))
 builder.Services.AddHttpClient("DefaultClient", client =>
 {
   client.BaseAddress = new Uri(apiBaseAddress);
-});
+})
+.ConfigurePrimaryHttpMessageHandler(() =>
+{
+  return new HttpClientHandler
+  {
+    ServerCertificateCustomValidationCallback = HttpClientHandler.DangerousAcceptAnyServerCertificateValidator
+  };
+}); ;
 
 
 builder.Services.AddControllers();
@@ -88,9 +94,9 @@ builder.Services.AddSingleton<IEmailSender<ApplicationUser>, IdentityNoOpEmailSe
 //string kestrelPassword = builder.Configuration.GetValue<string>("KestrelPassword");
 //builder.Configuration.GetSection("Kestrel:Endpoints:Https:Certificate:Password").Value = kestrelPassword;
 
-builder.Services.AddDataProtection()
-  .PersistKeysToFileSystem(new DirectoryInfo("/root/.aspnet/DataProtection-Keys"))
-  .SetApplicationName("ServerProgApp");
+//builder.Services.AddDataProtection()
+//  .PersistKeysToFileSystem(new DirectoryInfo("/root/.aspnet/DataProtection-Keys"))
+//  .SetApplicationName("ServerProgApp");
 
 
 var app = builder.Build();

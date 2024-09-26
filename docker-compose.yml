@@ -18,8 +18,8 @@ services:
       ASPNETCORE_ENVIRONMENT: Development
     volumes:
       - ${USERPROFILE}/.aspnet/https:/https/    # Mount local certs for HTTPS
-      - ./rootCA.crt:/usr/local/share/ca-certificates/rootCA.crt
-      - data-protection-keys:/root/.aspnet/DataProtection-Keys
+      # - ./rootCA.crt:/usr/local/share/ca-certificates/rootCA.crt
+      # - data-protection-keys:/root/.aspnet/DataProtection-Keys
     networks:
       - serverprog-network
 
