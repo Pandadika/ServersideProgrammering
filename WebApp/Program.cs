@@ -74,32 +74,6 @@ builder.Services.AddIdentityCore<ApplicationUser>(options => options.SignIn.Requ
 
 builder.Services.AddSingleton<IEmailSender<ApplicationUser>, IdentityNoOpEmailSender>();
 
-//builder.WebHost.UseKestrel((context, serveroptions) =>
-//{
-//  serveroptions.Configure(context.Configuration.GetSection("kestrel"))
-//  .Endpoint("https", listenoptions =>
-//  {
-//    listenoptions.HttpsOptions.SslProtocols = SslProtocols.Tls12;
-//    listenoptions.HttpsOptions.ServerCertificate = new X509Certificate2(
-//                Path.Combine("/https/cert.pfx"),
-//                "Passw0rd");
-//  });
-//});
-
-//string userFolder = Environment.GetFolderPath(Environment.SpecialFolder.UserProfile);
-//userFolder = Path.Combine(userFolder, ".aspnet");
-//userFolder = Path.Combine(userFolder, "https");
-//userFolder = Path.Combine(userFolder, "cert.pfx");
-//builder.Configuration.GetSection("Kestrel:Endpoints:Https:Certificate:Path").Value = userFolder;
-
-//string kestrelPassword = builder.Configuration.GetValue<string>("KestrelPassword");
-//builder.Configuration.GetSection("Kestrel:Endpoints:Https:Certificate:Password").Value = kestrelPassword;
-
-//builder.Services.AddDataProtection()
-//  .PersistKeysToFileSystem(new DirectoryInfo("/root/.aspnet/DataProtection-Keys"))
-//  .SetApplicationName("ServerProgApp");
-
-
 var app = builder.Build();
 
 using (var scope = app.Services.CreateScope())
@@ -125,7 +99,6 @@ app.UseHttpsRedirection();
 app.UseStaticFiles();
 app.UseAntiforgery();
 
-//app.MapControllers();
 app.MapRazorComponents<WebApp.Components.App>()
     .AddInteractiveServerRenderMode();
 

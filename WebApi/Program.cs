@@ -9,29 +9,20 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddControllers();
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
-builder.Services.AddSwaggerGen();
 builder.Services.AddDataProtection();
 builder.Services.AddSingleton<IEncryptionService, EncryptionService>();
 builder.Services.AddHttpClient();
+
 var connectionStringToDo = builder.Configuration.GetConnectionString("TodoConnection") ?? throw new InvalidOperationException("Connection string 'TodoConnection' not found.");
-//builder.Services.AddDbContext<TodoContext>(options => options.UseSqlite(connectionStringToDo));
 builder.Services.AddDbContext<UserContext>(options => options.UseSqlite(connectionStringToDo));
 builder.Services.AddDatabaseDeveloperPageExceptionFilter();
+
 var app = builder.Build();
 
 using (var scope = app.Services.CreateScope())
 {
-  //var dbContext = scope.ServiceProvider.GetRequiredService<TodoContext>();
-  //dbContext.Database.Migrate();
   var userContext = scope.ServiceProvider.GetRequiredService<UserContext>();
   userContext.Database.Migrate();
-}
-
-// Configure the HTTP request pipeline.
-if (app.Environment.IsDevelopment())
-{
-  app.UseSwagger();
-  app.UseSwaggerUI();
 }
 
 if (app.Environment.IsDevelopment())

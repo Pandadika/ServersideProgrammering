@@ -20,7 +20,6 @@ services:
       ApiBaseAddress: "https://webapi:443" 
     volumes:
       - ${USERPROFILE}/.aspnet/https:/https/    # Mount local certs for HTTPS
-      # - ./rootCA.crt:/usr/local/share/ca-certificates/rootCA.crt
       # - data-protection-keys:/root/.aspnet/DataProtection-Keys
       - serverprog-data:/app/data
       - serverprog-keys:/app/keys
