@@ -42,9 +42,3 @@ FROM base AS final-api
 WORKDIR /app
 COPY --from=publish-api /app/publish .
 ENTRYPOINT ["dotnet", "WebApi.dll"]
-# COPY entrypoint.sh .  
-# USER root
-# RUN sed 's/\x0D$//' -i entrypoint.sh
-# RUN chmod a+rx entrypoint.sh
-# USER app
-# ENTRYPOINT ["./entrypoint.sh"] 
