@@ -44,4 +44,52 @@ public class UserHandler
     var result = await response.Content.ReadAsStringAsync();
     return bool.TryParse(result, out bool isSuccess) && isSuccess;
   }
+
+  public async Task<bool> CreateToDoItem(string email, ToDoItem item)
+  {
+    var httpClient = httpClientFactory.CreateClient("DefaultClient");
+    var response = await httpClient.PostAsJsonAsync($"api/users/todoitems/{email}", item);
+    response.EnsureSuccessStatusCode();
+    var result = await response.Content.ReadAsStringAsync();
+    return bool.TryParse(result, out bool isSuccess) && isSuccess;
+  }
+
+  public async Task<List<ToDoItem>> ToDoItems(string email)
+  {
+    var httpClient = httpClientFactory.CreateClient("DefaultClient");
+    var response = await httpClient.GetAsync($"api/users/todoitems/{email}");
+    if (response.IsSuccessStatusCode)
+    {
+      return await response.Content.ReadFromJsonAsync<List<ToDoItem>>();
+    }
+    return new List<ToDoItem>();
+  }
+
+  public async Task<bool> DeleteToDoItem(string email, ToDoItem toDoItem)
+  {
+    var httpClient = httpClientFactory.CreateClient("DefaultClient");
+    var request = new HttpRequestMessage(HttpMethod.Delete, $"api/users/todoitems/{email}")
+    {
+      Content = JsonContent.Create(toDoItem)
+    };
+
+    var response = await httpClient.SendAsync(request);
+    response.EnsureSuccessStatusCode();
+    var result = await response.Content.ReadAsStringAsync();
+    return bool.TryParse(result, out bool isSuccess) && isSuccess;
+  }
+
+  public async Task<bool> SetItemDone(string email, ToDoItem toDoItem)
+  {
+    var httpClient = httpClientFactory.CreateClient("DefaultClient");
+    var request = new HttpRequestMessage(HttpMethod.Put, $"api/users/todoitems/{email}")
+    {
+      Content = JsonContent.Create(toDoItem)
+    };
+
+    var response = await httpClient.SendAsync(request);
+    response.EnsureSuccessStatusCode();
+    var result = await response.Content.ReadAsStringAsync();
+    return bool.TryParse(result, out bool isSuccess) && isSuccess;
+  }
 }

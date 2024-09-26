@@ -129,6 +129,80 @@ namespace WebApi.Controllers
       }
     }
 
+    [HttpGet("todoitems/{id}")]
+    public async Task<ActionResult<List<ToDoItem>>> GetToDoItems(string id)
+    {
+      var user = await _context.Users
+                               .Include(u => u.ToDoItems)
+                               .FirstOrDefaultAsync(u => u.Email == id);
+      if (user == null)
+      {
+        return NotFound();
+      }
+      user.ToDoItems ??= [];
+
+      return Ok(user.ToDoItems);
+    }
+
+    [HttpPost("todoitems/{id}")]
+    public async Task<ActionResult<bool>> PostToDoItem(string id, ToDoItem toDoItem)
+    {
+      var user = await _context.Users
+                               .Include(u => u.ToDoItems)
+                               .FirstOrDefaultAsync(u => u.Email == id);
+      if (user == null)
+      {
+        return NotFound();
+      }
+      user.ToDoItems ??= new();
+      user.ToDoItems.Add(toDoItem);
+      await _context.SaveChangesAsync();
+      return Ok(true);
+    }
+
+    [HttpDelete("todoitems/{id}")]
+    public async Task<ActionResult<bool>> DeleteToDoItem(string id, ToDoItem toDoItem)
+    {
+      var user = await _context.Users
+                               .Include(u => u.ToDoItems)
+                               .FirstOrDefaultAsync(u => u.Email == id);
+      if (user == null)
+      {
+        return NotFound();
+      }
+      user.ToDoItems ??= new();
+      var item = user.ToDoItems.FirstOrDefault(i => i.Id == toDoItem.Id);
+      if (item == null)
+      {
+        return NotFound();
+      }
+      user.ToDoItems.Remove(item);
+      await _context.SaveChangesAsync();
+      return Ok(true);
+    }
+
+    [HttpPut("todoitems/{id}")]
+    public async Task<ActionResult<bool>> SetDone(string id, ToDoItem toDoItem)
+    {
+      var user = await _context.Users
+                               .Include(u => u.ToDoItems)
+                               .FirstOrDefaultAsync(u => u.Email == id);
+      if (user == null)
+      {
+        return NotFound();
+      }
+      user.ToDoItems ??= new();
+      var item = user.ToDoItems.FirstOrDefault(i => i.Id == toDoItem.Id);
+      if (item == null)
+      {
+        return NotFound();
+      }
+      item.IsDone = true;
+      await _context.SaveChangesAsync();
+      return Ok(true);
+    }
+
+
     // DELETE: api/Users/5
     [HttpDelete("{id}")]
     public async Task<IActionResult> DeleteUser(string id)

@@ -1,7 +1,10 @@
 ﻿@page "/"
 @using Microsoft.AspNetCore.Authorization
+@using Shared.Services
+@inject IEncryptionService Encryptionservice
 @* @inject NavigationManager NavigationManager *@
 @attribute [Authorize(Policy = "AuthenticatedUser")]
+
 
 <PageTitle>Home</PageTitle>
 

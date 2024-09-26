@@ -10,13 +10,29 @@ public class EncryptionService : IEncryptionService
   private readonly string privateKey;
   private readonly string publicKey;
 
+  private const string PrivateKeyFilePath = "/app/keys/privateKey.xml";
+  private const string PublicKeyFilePath = "/app/keys/publicKey.xml";
+
   public EncryptionService(IDataProtectionProvider dataProtectionProvider)
   {
-    dataProtector = dataProtectionProvider.CreateProtector("Serversideprogrammering.WebApi.Services.EncryptionService");
+    dataProtector = dataProtectionProvider.CreateProtector("EncryptionService");
 
-    using RSACryptoServiceProvider rsa = new();
-    privateKey = rsa.ToXmlString(true);
-    publicKey = rsa.ToXmlString(false);
+    if (!File.Exists(PrivateKeyFilePath) || !File.Exists(PublicKeyFilePath))
+    {
+      using RSACryptoServiceProvider rsa = new();
+
+      privateKey = rsa.ToXmlString(true);
+      publicKey = rsa.ToXmlString(false);
+      Directory.CreateDirectory(Path.GetDirectoryName(PrivateKeyFilePath));
+
+      File.WriteAllText(PrivateKeyFilePath, privateKey);
+      File.WriteAllText(PublicKeyFilePath, publicKey);
+    }
+    else
+    {
+      privateKey = File.ReadAllText(PrivateKeyFilePath);
+      publicKey = File.ReadAllText(PublicKeyFilePath);
+    }
   }
 
   public string RSAEncrypt(string text, string? publicKey = null)
@@ -57,7 +73,7 @@ public class EncryptionService : IEncryptionService
     return dataProtector.Unprotect(encryptedText);
   }
 
-  public static string Encrypt(string text, string key)
+  public static string AESEncrypt(string text, string key)
   {
     if (key.Length != 16 && key.Length != 24 && key.Length != 32)
     {
@@ -90,7 +106,7 @@ public class EncryptionService : IEncryptionService
     return Convert.ToBase64String(encryptedBytes);
   }
 
-  public static string Decrypt(string encryptedText, string key)
+  public static string AESDecrypt(string encryptedText, string key)
   {
     byte[] encryptedBytes = Convert.FromBase64String(encryptedText);
     string decryptedText;

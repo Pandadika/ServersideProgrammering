@@ -18,6 +18,7 @@ builder.Services.AddScoped<IdentityRedirectManager>();
 builder.Services.AddScoped<AuthenticationStateProvider, IdentityRevalidatingAuthenticationStateProvider>();
 builder.Services.AddSingleton<UserHandler, UserHandler>();
 builder.Services.AddSingleton<IHashingService, HashingService>();
+builder.Services.AddSingleton<IEncryptionService, EncryptionService>();
 
 builder.Services.AddAuthentication(options =>
     {

@@ -35,10 +35,18 @@ RUN dotnet publish "./WebApi.csproj" -c $BUILD_CONFIGURATION -o /app/publish /p:
 
 FROM base AS final-app
 WORKDIR /app
+USER root
+RUN mkdir -p /app/data && chown -R app:app /app/data
+RUN mkdir -p /app/keys && chown -R app:app /app/keys 
+USER app
 COPY --from=publish-app /app/publish .
 ENTRYPOINT ["dotnet", "WebApp.dll"]
 
 FROM base AS final-api
 WORKDIR /app
+USER root
+RUN mkdir -p /app/data && chown -R app:app /app/data
+RUN mkdir -p /app/keys && chown -R app:app /app/keys 
+USER app
 COPY --from=publish-api /app/publish .
 ENTRYPOINT ["dotnet", "WebApi.dll"]

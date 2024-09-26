@@ -1,0 +1,4 @@
+﻿.input-error {
+  border: 2px solid red;
+  background-color: #ffe6e6; /* Optional: Add a background color to emphasize */
+}

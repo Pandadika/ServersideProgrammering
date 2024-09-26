@@ -1,12 +1,18 @@
 ﻿@page "/todo-items"
+@using WebApp.Models
+@using WebApp.Services
+@using Microsoft.AspNetCore.Authorization
+@using Shared.Services
 @inject HttpClient Http
 @inject IHttpClientFactory HttpClientFactory
-@using WebApp.Models
+@inject UserHandler userhandler;
+@inject IEncryptionService encryptionService
 
 <h3>ToDo Items</h3>
 
 <p>
-  <a href="/api/todoitems">Create New</a>
+  <input @bind="newToDoItemTitle" class="@inputCssClass" placeholder="Enter new Todo" />
+  <button @onclick="CreateNewToDoItem">Create</button>
 </p>
 
 @if (toDoItems == null)
@@ -30,9 +36,8 @@ else
           <td>@item.Title</td>
           <td>@item.IsDone</td>
           <td>
-            <a href="/edit/@item.Id">Edit</a> |
-            <a href="/details/@item.Id">Details</a> |
-            <a href="/delete/@item.Id">Delete</a>
+            <button @onclick="() => SetTodoItemDone(item)">Done?</button> |
+            <button @onclick="() => DeleteToDoItem(item)">Delete</button>
           </td>
         </tr>
       }
@@ -41,11 +46,79 @@ else
 }
 
 @code {
-  private List<ToDoItem> toDoItems;
+  private string inputCssClass = string.Empty;
+  private string newToDoItemTitle = string.Empty;
+  private List<ToDoItem> toDoItems = new();
+  private string username;
+
+  [CascadingParameter] protected Task<AuthenticationState> AuthStat { get; set; }
 
   protected override async Task OnInitializedAsync()
   {
-    var client = HttpClientFactory.CreateClient("DefaultClient");
-    toDoItems = await client.GetFromJsonAsync<List<ToDoItem>>("api/todoitems");
+    var user = (await AuthStat).User;
+    username = user.Identity?.Name;
+    var encryptedTodoItems = await userhandler.ToDoItems(username);
+    foreach (var item in encryptedTodoItems)
+    {
+      toDoItems.Add(item with { Title = encryptionService.RSADecrypt(item.Title) });
+    }
   }
+
+  private async Task CreateNewToDoItem()
+  {
+    if (string.IsNullOrWhiteSpace(newToDoItemTitle))
+    {
+      inputCssClass = "input-error";
+      return;
+    }
+
+    var newItem = new ToDoItem
+      {
+        Title = encryptionService.RSAEncrypt(newToDoItemTitle),
+        IsDone = false
+      };
+
+    bool success = await userhandler.CreateToDoItem(username, newItem);
+
+    if (success)
+    {
+      var encryptedTodoItems = await userhandler.ToDoItems(username); //Kalder api igen for at få todoItems id, der er sat i databasen
+      toDoItems.Clear();
+      foreach (var item in encryptedTodoItems)
+      {
+        toDoItems.Add(item with { Title = encryptionService.RSADecrypt(item.Title) }); 
+      }
+      newToDoItemTitle = string.Empty;
+      inputCssClass = string.Empty;
+    }
+  }
+
+  private async Task DeleteToDoItem(WebApp.Models.ToDoItem todoItem)
+  {
+    bool success = await userhandler.DeleteToDoItem(username, todoItem);
+
+    if (success)
+    {
+      var itemToDelete = toDoItems.FirstOrDefault(item => item.Id == todoItem.Id);
+      if (itemToDelete != null)
+      {
+        toDoItems.Remove(itemToDelete);
+      }
+    }
+  }
+
+  private async Task SetTodoItemDone(WebApp.Models.ToDoItem todoItem)
+  {
+    bool success = await userhandler.SetItemDone(username, todoItem);
+
+    if (success)
+    {
+      var itemToSetDone = toDoItems.FirstOrDefault(item => item.Id == todoItem.Id);
+      if (itemToSetDone != null)
+      {
+        itemToSetDone.IsDone = true;
+      }
+    }
+  }
+
 }
