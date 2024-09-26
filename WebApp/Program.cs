@@ -1,4 +1,5 @@
 using Microsoft.AspNetCore.Components.Authorization;
+using Microsoft.AspNetCore.DataProtection;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Shared.Services;
@@ -19,6 +20,9 @@ builder.Services.AddScoped<AuthenticationStateProvider, IdentityRevalidatingAuth
 builder.Services.AddSingleton<UserHandler, UserHandler>();
 builder.Services.AddSingleton<IHashingService, HashingService>();
 builder.Services.AddSingleton<IEncryptionService, EncryptionService>();
+builder.Services.AddDataProtection()
+    .PersistKeysToFileSystem(new DirectoryInfo("/app/keys"))
+    .SetApplicationName("WebApp");
 
 builder.Services.AddAuthentication(options =>
     {

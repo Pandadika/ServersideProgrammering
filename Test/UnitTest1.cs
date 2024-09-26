@@ -38,15 +38,6 @@ public class UnitTest1
   }
 
   [Fact]
-  public void Test5()
-  {
-    var encrypted = EncryptionService.AESEncrypt("password", "keykeykeykeykey1"); //key lenght must be 16, 24 or 32 chars
-    var decrypted = EncryptionService.AESDecrypt(encrypted, "keykeykeykeykey1");
-
-    Assert.Equal("password", decrypted);
-  }
-
-  [Fact]
   public void Test6()
   {
     var encryptionService = new EncryptionService(new EphemeralDataProtectionProvider());
