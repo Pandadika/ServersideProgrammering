@@ -7,6 +7,7 @@ services:
     build:
       context: .
       dockerfile: Dockerfile
+      target: final-app
     ports:
       - "7000:80"     # Map HTTP port
       - "7001:443"    # Map HTTPS port
@@ -16,10 +17,34 @@ services:
       ASPNETCORE_Kestrel__Certificates__Default__Path: /https/cert.pfx
       ASPNETCORE_Kestrel__Certificates__Default__Password: "Passw0rd"
       ASPNETCORE_ENVIRONMENT: Development
+      ApiBaseAddress: "https://webapi:443" 
     volumes:
       - ${USERPROFILE}/.aspnet/https:/https/    # Mount local certs for HTTPS
       # - ./rootCA.crt:/usr/local/share/ca-certificates/rootCA.crt
       # - data-protection-keys:/root/.aspnet/DataProtection-Keys
+    depends_on:
+      - webapi 
+    networks:
+      - serverprog-network
+
+  webapi:
+    image: webapi:v1
+    container_name: webapi
+    build:
+      context: .          # Assuming your WebApi project is in ./Api folder
+      dockerfile: Dockerfile
+      target: final-api
+    ports:
+      - "7002:80"             # Expose API externally if needed (optional)
+      - "7003:443"            # Expose API externally if needed (optional)
+    environment:
+      ASPNETCORE_URLS: "https://+;http://+"
+      ASPNETCORE_HTTPS_PORT: 7003
+      ASPNETCORE_Kestrel__Certificates__Default__Path: /https/cert.pfx
+      ASPNETCORE_Kestrel__Certificates__Default__Password: "Passw0rd"
+      ASPNETCORE_ENVIRONMENT: Development
+    volumes:
+      - ${USERPROFILE}/.aspnet/https:/https/
     networks:
       - serverprog-network
 

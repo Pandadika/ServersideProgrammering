@@ -1,4 +1,6 @@
+using Microsoft.EntityFrameworkCore;
 using Shared.Services;
+using WebApi.Models;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -11,14 +13,36 @@ builder.Services.AddSwaggerGen();
 builder.Services.AddDataProtection();
 builder.Services.AddSingleton<IEncryptionService, EncryptionService>();
 builder.Services.AddHttpClient();
-
+var connectionStringToDo = builder.Configuration.GetConnectionString("TodoConnection") ?? throw new InvalidOperationException("Connection string 'TodoConnection' not found.");
+builder.Services.AddDbContext<TodoContext>(options => options.UseSqlite(connectionStringToDo));
+builder.Services.AddDbContext<UserContext>(options => options.UseSqlite(connectionStringToDo));
+builder.Services.AddDatabaseDeveloperPageExceptionFilter();
 var app = builder.Build();
+
+using (var scope = app.Services.CreateScope())
+{
+  var dbContext = scope.ServiceProvider.GetRequiredService<TodoContext>();
+  dbContext.Database.Migrate();
+  var userContext = scope.ServiceProvider.GetRequiredService<UserContext>();
+  userContext.Database.Migrate();
+}
 
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
 {
   app.UseSwagger();
   app.UseSwaggerUI();
+}
+
+if (app.Environment.IsDevelopment())
+{
+  app.UseMigrationsEndPoint();
+}
+else
+{
+  app.UseExceptionHandler("/Error", createScopeForErrors: true);
+  // The default HSTS value is 30 days. You may want to change this for production scenarios, see https://aka.ms/aspnetcore-hsts.
+  app.UseHsts();
 }
 
 app.UseHttpsRedirection();

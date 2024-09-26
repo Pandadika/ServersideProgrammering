@@ -4,11 +4,13 @@
 @using Microsoft.AspNetCore.Authentication
 @using Microsoft.AspNetCore.Identity
 @using WebApp.Data
+@using WebApp.Services
 
 @inject SignInManager<ApplicationUser> SignInManager
 @inject ILogger<Login> Logger
 @inject NavigationManager NavigationManager
 @inject IdentityRedirectManager RedirectManager
+@inject UserHandler UserHandler
 
 <style>
     .centered-container {
@@ -56,6 +58,9 @@
   [SupplyParameterFromQuery]
   private string? ReturnUrl { get; set; }
 
+  [SupplyParameterFromQuery]
+  private string? Email { get; set; }
+
   protected override async Task OnInitializedAsync()
   {
     if (HttpMethods.IsGet(HttpContext.Request.Method))
@@ -68,16 +73,18 @@
   public async Task LoginUser()
   {
     //check cpr 
-    var result = true;
+    Logger.LogInformation($"User email {Email}");
+    var result = await UserHandler.CheckCpr(Email, Input.CPR);
+
     if (result)
-        {
-            Logger.LogInformation("User logged in.");
-            RedirectManager.RedirectTo(ReturnUrl);
-        }
-        else
-        {
-            errorMessage = "Error: Invalid CPR.";
-        }
+      {
+        Logger.LogInformation("User logged in.");
+        RedirectManager.RedirectTo(ReturnUrl);
+      }
+      else
+      {
+        errorMessage = "Error: Invalid CPR.";
+      }
     }
 
     private sealed class InputModel

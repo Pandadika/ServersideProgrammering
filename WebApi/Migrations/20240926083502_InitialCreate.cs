@@ -2,10 +2,10 @@
 
 #nullable disable
 
-namespace WebApp.Migrations
+namespace WebApi.Migrations
 {
     /// <inheritdoc />
-    public partial class initTodo : Migration
+    public partial class InitialCreate : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)

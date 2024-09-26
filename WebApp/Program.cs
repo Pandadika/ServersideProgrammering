@@ -1,9 +1,10 @@
 using Microsoft.AspNetCore.Components.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
+using Shared.Services;
 using WebApp.Components.Account;
 using WebApp.Data;
-using WebApp.Models;
+using WebApp.Services;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -15,6 +16,8 @@ builder.Services.AddCascadingAuthenticationState();
 builder.Services.AddScoped<IdentityUserAccessor>();
 builder.Services.AddScoped<IdentityRedirectManager>();
 builder.Services.AddScoped<AuthenticationStateProvider, IdentityRevalidatingAuthenticationStateProvider>();
+builder.Services.AddSingleton<UserHandler, UserHandler>();
+builder.Services.AddSingleton<IHashingService, HashingService>();
 
 builder.Services.AddAuthentication(options =>
     {
@@ -35,10 +38,7 @@ builder.Services.AddAuthorization(options =>
   });
 });
 
-var connectionStringToDo = builder.Configuration.GetConnectionString("TodoConnection") ?? throw new InvalidOperationException("Connection string 'TodoConnection' not found.");
 var connectionString = builder.Configuration.GetConnectionString("DefaultConnection") ?? throw new InvalidOperationException("Connection string 'DefaultConnection' not found.");
-builder.Services.AddDbContext<TodoContext>(options =>
-    options.UseSqlite(connectionStringToDo));
 builder.Services.AddDbContext<ApplicationDbContext>(options =>
     options.UseSqlite(connectionString));
 
@@ -101,6 +101,12 @@ builder.Services.AddSingleton<IEmailSender<ApplicationUser>, IdentityNoOpEmailSe
 
 var app = builder.Build();
 
+using (var scope = app.Services.CreateScope())
+{
+  var dbContext = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
+  dbContext.Database.Migrate();
+}
+
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
 {
@@ -118,7 +124,7 @@ app.UseHttpsRedirection();
 app.UseStaticFiles();
 app.UseAntiforgery();
 
-app.MapControllers();
+//app.MapControllers();
 app.MapRazorComponents<WebApp.Components.App>()
     .AddInteractiveServerRenderMode();
 

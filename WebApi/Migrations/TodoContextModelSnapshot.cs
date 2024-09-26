@@ -2,13 +2,13 @@
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
-using WebApp.Models;
+using WebApi.Models;
 
 #nullable disable
 
-namespace WebApp.Migrations
+namespace WebApi.Migrations
 {
-  [DbContext(typeof(TodoContext))]
+    [DbContext(typeof(TodoContext))]
     partial class TodoContextModelSnapshot : ModelSnapshot
     {
         protected override void BuildModel(ModelBuilder modelBuilder)
@@ -16,7 +16,7 @@ namespace WebApp.Migrations
 #pragma warning disable 612, 618
             modelBuilder.HasAnnotation("ProductVersion", "8.0.8");
 
-            modelBuilder.Entity("WebApp.Models.ToDoItem", b =>
+            modelBuilder.Entity("WebApi.Models.ToDoItem", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()

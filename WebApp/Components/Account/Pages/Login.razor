@@ -24,7 +24,6 @@
 </style>
 
 <PageTitle>Log in</PageTitle>
-@* <TodoItems /> *@
 
 <div class="row centered-container">
     <div class="col-md-4">
@@ -97,8 +96,9 @@
         var result = await SignInManager.PasswordSignInAsync(Input.Email, Input.Password, Input.RememberMe, lockoutOnFailure: false);
         if (result.Succeeded)
         {
-            Logger.LogInformation("User logged in.");
-            RedirectManager.RedirectTo("Account/CPRLogin");
+          Logger.LogInformation("User logged in.");
+          RedirectManager.RedirectTo("Account/CPRLogin", 
+            new() { ["email"] = Input.Email, ["returnUrl"] = ReturnUrl });
         }
         else if (result.RequiresTwoFactor)
         {

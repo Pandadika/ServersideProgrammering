@@ -9,17 +9,42 @@ EXPOSE 8081
 FROM mcr.microsoft.com/dotnet/sdk:8.0 AS build
 ARG BUILD_CONFIGURATION=Release
 WORKDIR /src
+
 COPY ["WebApp/WebApp.csproj", "WebApp/"]
+COPY ["WebApi/WebApi.csproj", "WebApi/"]
+COPY ["Shared/Shared.csproj", "Shared/"]
+
 RUN dotnet restore "./WebApp/./WebApp.csproj"
+RUN dotnet restore "./WebApi/./WebApi.csproj"
 COPY . .
+
 WORKDIR "/src/WebApp"
 RUN dotnet build "./WebApp.csproj" -c $BUILD_CONFIGURATION -o /app/build
+WORKDIR "/src/WebApi"
+RUN dotnet build "./WebApi.csproj" -c $BUILD_CONFIGURATION -o /app/build
 
-FROM build AS publish
+FROM build AS publish-app
+WORKDIR "/src/WebApp"
 ARG BUILD_CONFIGURATION=Release
 RUN dotnet publish "./WebApp.csproj" -c $BUILD_CONFIGURATION -o /app/publish /p:UseAppHost=false
 
-FROM base AS final
+FROM build AS publish-api
+WORKDIR "/src/WebApi"
+ARG BUILD_CONFIGURATION=Release
+RUN dotnet publish "./WebApi.csproj" -c $BUILD_CONFIGURATION -o /app/publish /p:UseAppHost=false
+
+FROM base AS final-app
 WORKDIR /app
-COPY --from=publish /app/publish .
+COPY --from=publish-app /app/publish .
 ENTRYPOINT ["dotnet", "WebApp.dll"]
+
+FROM base AS final-api
+WORKDIR /app
+COPY --from=publish-api /app/publish .
+ENTRYPOINT ["dotnet", "WebApi.dll"]
+# COPY entrypoint.sh .  
+# USER root
+# RUN sed 's/\x0D$//' -i entrypoint.sh
+# RUN chmod a+rx entrypoint.sh
+# USER app
+# ENTRYPOINT ["./entrypoint.sh"] 

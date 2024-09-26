@@ -1,10 +1,8 @@
-﻿using WebApp.Data;
+﻿namespace WebApp.Models;
 
-namespace WebApp.Models;
-
-public class User : ApplicationUser
+public class User
 {
-  public required string Email { get; set; }
+  public string? Email { get; set; }
   public List<ToDoItem>? ToDoItems { get; set; }
-  public required string CPR { get; set; }
+  public string? CPR { get; set; }
 }

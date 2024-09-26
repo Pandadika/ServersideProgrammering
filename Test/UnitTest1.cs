@@ -4,6 +4,8 @@ using Shared.Services;
 namespace Test;
 public class UnitTest1
 {
+  readonly HashingService HashingService = new();
+
   [Fact]
   public void Test1()
   {

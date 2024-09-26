@@ -3,15 +3,15 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
-using WebApp.Models;
+using WebApi.Models;
 
 #nullable disable
 
-namespace WebApp.Migrations
+namespace WebApi.Migrations
 {
-  [DbContext(typeof(TodoContext))]
-    [Migration("20240924070923_initTodo")]
-    partial class initTodo
+    [DbContext(typeof(TodoContext))]
+    [Migration("20240926094518_Update")]
+    partial class Update
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -19,7 +19,7 @@ namespace WebApp.Migrations
 #pragma warning disable 612, 618
             modelBuilder.HasAnnotation("ProductVersion", "8.0.8");
 
-            modelBuilder.Entity("WebApp.Models.ToDoItem", b =>
+            modelBuilder.Entity("WebApi.Models.ToDoItem", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
