@@ -5,6 +5,21 @@ namespace Shared.Services;
 
 public class HashingService : IHashingService
 {
+  private readonly string BCryptSalt;
+  private const string BCryptHashPath = "/app/keys/BcryptHash";
+  public HashingService()
+  {
+    if (!File.Exists(BCryptHashPath))
+    {
+      var workFactor = 11;
+      string salt = BCrypt.Net.BCrypt.GenerateSalt(workFactor);
+      File.WriteAllText(BCryptHashPath, salt);
+    }
+    else
+    {
+      BCryptSalt = File.ReadAllText(BCryptHashPath);
+    }
+  }
   public string MD5Hashing(string password)
   {
     byte[] hashedBytes = MD5.HashData(Encoding.UTF8.GetBytes(password));
@@ -33,9 +48,7 @@ public class HashingService : IHashingService
 
   public string BCryptHashing(string password)
   {
-    var workFactor = 11;
-    string salt = BCrypt.Net.BCrypt.GenerateSalt(workFactor);
-    return BCrypt.Net.BCrypt.HashPassword(password, salt, enhancedEntropy: true);
+    return BCrypt.Net.BCrypt.HashPassword(password, BCryptSalt, enhancedEntropy: true);
   }
 
   public bool BCryptVerify(string password, string hash)
