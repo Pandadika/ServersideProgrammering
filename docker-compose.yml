@@ -1,0 +1,31 @@
+version: "3.8"
+
+services:
+  serverprog:
+    image: serverprog:v1
+    container_name: serverprog
+    build:
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      - "7000:80"     # Map HTTP port
+      - "7001:443"    # Map HTTPS port
+    environment:
+      ASPNETCORE_URLS: "https://+;http://+" # Bind to both HTTP and HTTPS
+      ASPNETCORE_HTTPS_PORT: 7001
+      ASPNETCORE_Kestrel__Certificates__Default__Path: /https/cert.pfx
+      ASPNETCORE_Kestrel__Certificates__Default__Password: "Passw0rd"
+      ASPNETCORE_ENVIRONMENT: Development
+    volumes:
+      - ${USERPROFILE}/.aspnet/https:/https/    # Mount local certs for HTTPS
+      - ./rootCA.crt:/usr/local/share/ca-certificates/rootCA.crt
+      - data-protection-keys:/root/.aspnet/DataProtection-Keys
+    networks:
+      - serverprog-network
+
+networks:
+  serverprog-network:
+    driver: bridge
+
+volumes:
+  data-protection-keys:

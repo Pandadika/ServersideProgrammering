@@ -1,0 +1,89 @@
+﻿@page "/Account/CPRLogin"
+
+@using System.ComponentModel.DataAnnotations
+@using Microsoft.AspNetCore.Authentication
+@using Microsoft.AspNetCore.Identity
+@using WebApp.Data
+
+@inject SignInManager<ApplicationUser> SignInManager
+@inject ILogger<Login> Logger
+@inject NavigationManager NavigationManager
+@inject IdentityRedirectManager RedirectManager
+
+<style>
+    .centered-container {
+        display: flex;
+        justify-content: center; /* Center horizontally */
+        align-items: center;    /* Center vertically */
+        height: 10vh;          /* Full viewport height */
+    }
+    .content {
+        text-align: left;     /* Optional: Center text inside the content div */
+    }
+</style>
+
+<PageTitle>CPR Login</PageTitle>
+
+<div class="row centered-container">
+    <div class="col-md-4">
+        <section>
+            <StatusMessage Message="@errorMessage" />
+            <EditForm Model="Input" method="post" OnValidSubmit="LoginUser" FormName="login">
+                <DataAnnotationsValidator />
+                <ValidationSummary class="text-danger" role="alert" />
+                  <div class="form-floating mb-3">
+                    <InputText @bind-Value="Input.CPR" class="form-control"aria-required="true" />
+                      <label for="cpr" class="form-label">CPR</label>
+                    <ValidationMessage For="() => Input.CPR" class="text-danger" />
+                  </div>
+                <div>
+                    <button type="submit" class="w-100 btn btn-lg btn-primary">Log in</button>
+                </div>
+            </EditForm>
+        </section>
+    </div>
+</div>
+
+@code {
+  private string? errorMessage;
+
+  [CascadingParameter]
+  private HttpContext HttpContext { get; set; } = default!;
+
+  [SupplyParameterFromForm]
+  private InputModel Input { get; set; } = new();
+
+  [SupplyParameterFromQuery]
+  private string? ReturnUrl { get; set; }
+
+  protected override async Task OnInitializedAsync()
+  {
+    if (HttpMethods.IsGet(HttpContext.Request.Method))
+    {
+      // Clear the existing external cookie to ensure a clean login process
+      await HttpContext.SignOutAsync(IdentityConstants.ExternalScheme);
+    }
+  }
+
+  public async Task LoginUser()
+  {
+    //check cpr 
+    var result = true;
+    if (result)
+        {
+            Logger.LogInformation("User logged in.");
+            RedirectManager.RedirectTo(ReturnUrl);
+        }
+        else
+        {
+            errorMessage = "Error: Invalid CPR.";
+        }
+    }
+
+    private sealed class InputModel
+    {
+        [Required]
+        [StringLength(10)]
+        public string CPR { get; set; } = "";
+    }
+}

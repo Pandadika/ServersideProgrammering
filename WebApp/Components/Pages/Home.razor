@@ -1,0 +1,22 @@
+﻿@page "/"
+@using Microsoft.AspNetCore.Authorization
+@* @inject NavigationManager NavigationManager *@
+@attribute [Authorize(Policy = "AuthenticatedUser")]
+
+<PageTitle>Home</PageTitle>
+
+<h1>Hello, @username</h1>
+<TodoItems />
+
+
+@code {
+  private string? username;
+  [CascadingParameter] protected Task<AuthenticationState> AuthStat { get; set; }
+
+  protected async override Task OnInitializedAsync()
+  {
+    base.OnInitialized();
+    var user = (await AuthStat).User;
+    username = user.Identity?.Name;
+  }
+}

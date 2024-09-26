@@ -1,0 +1,77 @@
+﻿@inherits LayoutComponentBase
+@inject NavigationManager NavigationManager
+
+<div class="page">
+  <AuthorizeView>
+    <Authorized>
+
+@*     <div class="sidebar">
+        <NavMenu />
+      </div> *@
+    </Authorized>
+  </AuthorizeView>
+
+    <main>
+        <div class="top-row px-4">
+@*             <a href="https://learn.microsoft.com/aspnet/core/" target="_blank">About</a> *@
+          <AuthorizeView>
+            <NotAuthorized>
+              <NavLink class="nav-link" href="Account/Login">
+                <span class="bi bi-person-badge-nav-menu" aria-hidden="true"></span> Login
+              </NavLink>
+            </NotAuthorized>
+            <Authorized>
+              <form action="Account/Logout" method="post">
+                <AntiforgeryToken />
+                <input type="hidden" name="ReturnUrl" value="@currentUrl" />
+                <button type="submit" class="nav-link" style="background:none;border:none;padding:0;cursor:pointer;">
+                  <span class="bi bi-arrow-bar-left-nav-menu" aria-hidden="true"></span> Logout
+                </button>
+              </form>
+            </Authorized>
+          </AuthorizeView>
+        </div>
+
+        <article class="content px-4">
+            @Body
+        </article>
+    </main>
+</div>
+
+<div id="blazor-error-ui">
+    An unhandled error has occurred.
+    <a href="" class="reload">Reload</a>
+    <a class="dismiss">🗙</a>
+</div>
+
+@code {
+  private string? currentUrl;
+
+  protected override void OnInitialized()
+  {
+    currentUrl = NavigationManager.ToBaseRelativePath(NavigationManager.Uri);
+    NavigationManager.LocationChanged += OnLocationChanged;
+  }
+
+  private void OnLocationChanged(object? sender, LocationChangedEventArgs e)
+  {
+    currentUrl = NavigationManager.ToBaseRelativePath(e.Location);
+    StateHasChanged();
+  }
+
+  // [CascadingParameter] protected Task<AuthenticationState> AuthStat { get; set; }
+
+  // protected async override Task OnInitializedAsync()
+  // {
+  //   base.OnInitialized();
+  //   var user = (await AuthStat).User;
+  //   if (user.Identity == null || !user.Identity.IsAuthenticated)
+  //   {
+  //     if (!NavigationManager.Uri.Contains("/Account/Login") && !NavigationManager.Uri.Contains("/Account/Register"))
+  //     {
+  //       NavigationManager.NavigateTo($"/Account/Login/?returnUrl={Uri.EscapeDataString(NavigationManager.Uri)}", false);
+  //     }
+  //   }
+
+  // }
+}

@@ -1,0 +1,51 @@
+﻿@page "/todo-items"
+@inject HttpClient Http
+@inject IHttpClientFactory HttpClientFactory
+@using WebApp.Models
+
+<h3>ToDo Items</h3>
+
+<p>
+  <a href="/api/todoitems">Create New</a>
+</p>
+
+@if (toDoItems == null)
+{
+  <p><em>Loading...</em></p>
+}
+else
+{
+  <table class="table">
+    <thead>
+      <tr>
+        <th>Title</th>
+        <th>Is Done</th>
+        <th></th>
+      </tr>
+    </thead>
+    <tbody>
+      @foreach (var item in toDoItems)
+      {
+        <tr>
+          <td>@item.Title</td>
+          <td>@item.IsDone</td>
+          <td>
+            <a href="/edit/@item.Id">Edit</a> |
+            <a href="/details/@item.Id">Details</a> |
+            <a href="/delete/@item.Id">Delete</a>
+          </td>
+        </tr>
+      }
+    </tbody>
+  </table>
+}
+
+@code {
+  private List<ToDoItem> toDoItems;
+
+  protected override async Task OnInitializedAsync()
+  {
+    var client = HttpClientFactory.CreateClient("DefaultClient");
+    toDoItems = await client.GetFromJsonAsync<List<ToDoItem>>("api/todoitems");
+  }
+}
