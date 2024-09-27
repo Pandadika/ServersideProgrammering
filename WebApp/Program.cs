@@ -69,9 +69,11 @@ builder.Services.AddHttpClient("DefaultClient", client =>
 {
   return new HttpClientHandler
   {
+    // Certficate authorzation er fjernet for den interne HttpClient. får hele tiden et SSL error når jeg prøver at køre programmet i docker containere, 
+    // Hvis man ikke kører i docker containere så virker HttpClienten med certificates, jeg ved ikke hvorfor det ikke gider virke i docker.
     ServerCertificateCustomValidationCallback = HttpClientHandler.DangerousAcceptAnyServerCertificateValidator
   };
-}); ;
+});
 
 
 builder.Services.AddControllers();
