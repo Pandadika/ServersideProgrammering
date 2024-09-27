@@ -21,6 +21,7 @@ public class UserHandler
     var response = await httpClient.PostAsJsonAsync("api/users", newUser);
     response.EnsureSuccessStatusCode();
     var result = await response.Content.ReadAsStringAsync();
+
     return result == "true";
   }
 
@@ -32,6 +33,7 @@ public class UserHandler
     {
       return await response.Content.ReadFromJsonAsync<User>();
     }
+
     return null;
   }
 
@@ -42,7 +44,29 @@ public class UserHandler
     var response = await httpClient.PutAsJsonAsync($"api/users/cpr/{email}", user);
     response.EnsureSuccessStatusCode();
     var result = await response.Content.ReadAsStringAsync();
+
     return bool.TryParse(result, out bool isSuccess) && isSuccess;
+  }
+
+  public async Task<bool> TrySetCprBecrypt(string email, string cpr)
+  {
+    var httpClient = httpClientFactory.CreateClient("DefaultClient");
+    var user = new User { Email = email, CPR = hashingService.BCryptHashing(cpr) };
+    var response = await httpClient.PutAsJsonAsync($"api/users/cpr/{email}", user);
+    response.EnsureSuccessStatusCode();
+    var result = await response.Content.ReadAsStringAsync();
+
+    return bool.TryParse(result, out bool isSuccess) && isSuccess;
+  }
+
+  public async Task<bool> CheckCprBcrypt(string email, string cpr)
+  {
+    var httpClient = httpClientFactory.CreateClient("DefaultClient");
+    var response = await httpClient.GetAsync($"api/users/cpr/{email}");
+    response.EnsureSuccessStatusCode();
+    var result = await response.Content.ReadAsStringAsync();
+
+    return hashingService.BCryptVerify(cpr, result);
   }
 
   public async Task<bool> CreateToDoItem(string email, ToDoItem item)
@@ -51,6 +75,7 @@ public class UserHandler
     var response = await httpClient.PostAsJsonAsync($"api/users/todoitems/{email}", item);
     response.EnsureSuccessStatusCode();
     var result = await response.Content.ReadAsStringAsync();
+
     return bool.TryParse(result, out bool isSuccess) && isSuccess;
   }
 
@@ -62,6 +87,7 @@ public class UserHandler
     {
       return await response.Content.ReadFromJsonAsync<List<ToDoItem>>();
     }
+
     return new List<ToDoItem>();
   }
 
@@ -76,6 +102,7 @@ public class UserHandler
     var response = await httpClient.SendAsync(request);
     response.EnsureSuccessStatusCode();
     var result = await response.Content.ReadAsStringAsync();
+
     return bool.TryParse(result, out bool isSuccess) && isSuccess;
   }
 
@@ -90,6 +117,7 @@ public class UserHandler
     var response = await httpClient.SendAsync(request);
     response.EnsureSuccessStatusCode();
     var result = await response.Content.ReadAsStringAsync();
+
     return bool.TryParse(result, out bool isSuccess) && isSuccess;
   }
 }

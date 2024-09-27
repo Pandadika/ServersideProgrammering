@@ -36,6 +36,11 @@ builder.Services.AddAuthorization(options =>
   options.AddPolicy("AuthenticatedUser", policy =>
   {
     policy.RequireAuthenticatedUser();
+    policy.RequireClaim("CprVerified");
+  });
+  options.AddPolicy("NotCprAuthenticatedUser", policy =>
+  {
+    policy.RequireAuthenticatedUser();
   });
   options.AddPolicy("Admin", policy =>
   {
@@ -72,6 +77,7 @@ builder.Services.AddHttpClient("DefaultClient", client =>
 builder.Services.AddControllers();
 
 builder.Services.AddIdentityCore<ApplicationUser>(options => options.SignIn.RequireConfirmedAccount = true)
+    .AddRoles<IdentityRole>()
     .AddEntityFrameworkStores<ApplicationDbContext>()
     .AddSignInManager()
     .AddDefaultTokenProviders();

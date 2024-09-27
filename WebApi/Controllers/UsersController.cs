@@ -61,6 +61,7 @@ namespace WebApi.Controllers
       return CreatedAtAction("GetUser", new { id = user.Email }, user);
     }
 
+    //Til MD5, SHA256
     [HttpPut("cpr/{id}")]
     public async Task<ActionResult<bool>> CheckCpr(string id, User user)
     {
@@ -96,6 +97,19 @@ namespace WebApi.Controllers
           return Ok(false);
         }
       }
+    }
+
+    // Till HMAC, PBKDF2, BCrypt
+    [HttpGet("cpr/{id}")]
+    public async Task<ActionResult<string>> GetCpr(string id)
+    {
+      var user = await _context.Users.FindAsync(id);
+      if (user == null)
+      {
+        return NotFound();
+      }
+
+      return Ok(user.CPR);
     }
 
     [HttpGet("todoitems/{id}")]
